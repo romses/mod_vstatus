@@ -6,7 +6,7 @@ mod vstatus is a tool to collect apache requests summarized by vhost and status-
 ##Highlights
   - highly configurable
   - different output styles (csv,google charts, html)
-  - filter my status code
+  - filter by status code
 
 
 ##example output
