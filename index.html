@@ -1,79 +1,117 @@
 <!DOCTYPE html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Mod_vstatus : Apache module for displayinh HTTP Codes for each virtual host" />
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
 
-    <title>Mod_vstatus</title>
+    <title>Mod_vstatus by romses</title>
   </head>
 
   <body>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/romses/mod_vstatus">View on GitHub</a>
+    <header>
+      <div class="container">
+        <h1>Mod_vstatus</h1>
+        <h2>Apache module for displayinh HTTP Codes for each virtual host</h2>
 
-          <h1 id="project_title">Mod_vstatus</h1>
-          <h2 id="project_tagline">Apache module for displayinh HTTP Codes for each virtual host</h2>
+        <section id="downloads">
+          <a href="https://github.com/romses/mod_vstatus/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/romses/mod_vstatus/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/romses/mod_vstatus" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/romses/mod_vstatus/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/romses/mod_vstatus/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a name="mod_vstatus" class="anchor" href="#mod_vstatus"><span class="octicon octicon-link"></span></a>mod_vstatus</h1>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+<h3>
+<a name="statistic-tool-for-managing-vhosts-in-apache2" class="anchor" href="#statistic-tool-for-managing-vhosts-in-apache2"><span class="octicon octicon-link"></span></a>statistic tool for managing vhosts in apache2</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>mod vstatus is a tool to collect apache requests summarized by vhost and status-code.</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<h2>
+<a name="highlights" class="anchor" href="#highlights"><span class="octicon octicon-link"></span></a>Highlights</h2>
+
+<ul>
+<li>highly configurable</li>
+<li>different output styles (csv,google charts, html)</li>
+<li>filter my status code</li>
+</ul><h2>
+<a name="example-output" class="anchor" href="#example-output"><span class="octicon octicon-link"></span></a>example output</h2>
+
+<h3>
+<a name="csv" class="anchor" href="#csv"><span class="octicon octicon-link"></span></a>csv</h3>
+
+<pre><code>Time,Host,Total,1xx,2xx,3xx,4xx,5xx,100,101,200,201,202,203,204,205,206,300,301,302,303,304,305,306,307,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,500,501,502,503,504,505
+1394439580,Total,4497,0,3688,646,127,36,0,0,3182,0,0,0,0,0,506,0,531,3,2,110,0,0,0,1,97,0,0,10,0,0,0,19,0,0,0,0,0,0,0,0,0,36,0,0,0,0,0
+1394439580,&lt;UNNAMED&gt;,122,0,103,0,19,0,0,0,103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+1394439580,&lt;VHOST1&gt;,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+1394439580,&lt;VHOST2&gt;,347,0,343,4,0,0,0,0,343,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+1394439580,&lt;VHOST3&gt;,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+1394439565,Total,4497,0,3688,646,127,36,0,0,3182,0,0,0,0,0,506,0,531,3,2,110,0,0,0,1,97,0,0,10,0,0,0,19,0,0,0,0,0,0,0,0,0,36,0,0,0,0,0
+1394439565,&lt;UNNAMED&gt;,122,0,103,0,19,0,0,0,103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+1394439565,&lt;VHOST1&gt;,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+1394439565,&lt;VHOST2&gt;,347,0,343,4,0,0,0,0,343,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+1394439565,&lt;VHOST3&gt;,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<h2>
+<a name="quick-start" class="anchor" href="#quick-start"><span class="octicon octicon-link"></span></a>Quick-start</h2>
+
+<pre><code>checkout sourcecode
+make
+make install
+</code></pre>
+
+<p>add the following config directives to the apache config (e.g. /etc/apache2/http.conf)</p>
+
+<pre><code>&lt;Location /vstatus&gt;
+    SetHandler vstatus
+    Order deny,allow
+    Allow from 127.0.0.0/255.0.0.0
+    Allow From 62.144.112.0/255.255.255.0
+    Allow From 192.168.20.0/24
+&lt;/Location&gt;
+
+vstatusHistSize 120             #log 120 values per vhost
+vstatusGranularity 1            # 1 second per log entry
+# time monitored = vstatusGranularity*vstatusHistSize = 120 seconds
+
+#vstatusFilter  &lt;NAME&gt; 0 1 2 3 4 5  # summarize error-codes (0 = all errors, 1 = 1xx ...)
+#vstatusFormat  &lt;NAME&gt; &lt;format&gt;     # format=&lt;csv,json,google,htmldumpcsv,dump-json&gt;
+#vstatusType    &lt;NAME&gt; abs          # &lt;abs|rel&gt; show absolute or relative values
+#vstatusComment &lt;NAME&gt; Test         # comment
+
+vstatusFilter  csv 0 1 2 3 4 404 5  # summarize error-codes (0 = all errors, 1 = 1xx ...)
+vstatusFormat  csv csv
+vstatusType    csv abs
+vstatusComment csv Test
+
+vstatusFilter  csv-rel 0 1 2 3 4 5
+vstatusFormat  csv-rel csv
+vstatusType    csv-rel rel
+vstatusDelta   csv-rel 60
+vstatusComment csv-rel "Shows all, 1xx,2xx,3xx,4xx,5xx codes based on the last 60 seconds"
+
+vstatusFilter  google 0 1 2 3 4 5
+vstatusFormat  google google
+vstatusDelta   google 60
+vstatusComment google "Data for google chart tools"
+</code></pre>
 
 <h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
-
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<a name="author---christopher-kreitz" class="anchor" href="#author---christopher-kreitz"><span class="octicon octicon-link"></span></a>Author - <a href="https://github.com/romses">Christopher Kreitz</a>
+</h3>
       </section>
     </div>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Mod_vstatus maintained by <a href="https://github.com/romses">romses</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-
     
-
   </body>
 </html>
