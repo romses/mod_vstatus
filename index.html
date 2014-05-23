@@ -106,6 +106,75 @@ vstatusComment google "Data for google chart tools"
 </code></pre>
 
 <h3>
+<a name="parameters" class="anchor" href="#parameters"><span class="octicon octicon-link"></span></a>Parameters</h3>
+
+<p>First, there are two parameter, <strong>vstatusHistSize</strong> and <strong>vstatusGranularity</strong>. These parameters controlls, wow many data values are stored, and how often, they are renewed.</p>
+
+<p><strong>vstatusHistSize</strong> controls, how many lines the data-table woll hold for each vhost.
+e.g. <strong>vstatusHistSize</strong> 120 will hold 120 lines for each vhost.</p>
+
+<p><strong>vstatusGranularity</strong> will control the amount of time in seconds, a line will be active.</p>
+
+<p>e.g. <strong>vstatusGranularity</strong> 1 will create a new line every second.</p>
+
+<p>Therefor, vstatusHistSize 120 and vstatusGranularity 1 will hold data for two minutes</p>
+
+<h3>
+<a name="filters" class="anchor" href="#filters"><span class="octicon octicon-link"></span></a>Filters</h3>
+
+<p>For getting the data stored in the internal table, you will need a filter. Filters requires several parameters.</p>
+
+<p>A Filter will be create on the fly, by naming it as the fist parameter i one of the following commands: <strong>vstatusFilter</strong>, <strong>vstatusFormat</strong>, <strong>vstatusType</strong>, <strong>vstatusDelta</strong>, <strong>vstatusDelta</strong></p>
+
+<h4>
+<a name="vstatusfilter" class="anchor" href="#vstatusfilter"><span class="octicon octicon-link"></span></a>vstatusFilter</h4>
+
+<p><strong>vstatusFilter </strong> declares, which response-codes will be exported.
+0 - summarize all status-codes (all hits)
+1 - summarize all 1xx-codes
+...
+5 - summarize all 5xx-codes</p>
+
+<p>100 - list all 100-codes
+404 - list all "Page not found" codes</p>
+
+<h4>
+<a name="vstatusformat" class="anchor" href="#vstatusformat"><span class="octicon octicon-link"></span></a>vstatusFormat</h4>
+
+<p><strong>vstatusFormat </strong> declares, how the data will be formatted
+valid statements are:
+    html      - creates human readable output
+    csv       - creates csv-content ,,
+    json      - creates a json-object containing the colelcted data.
+    google    - creates a google-json for using in google chart-tools
+    dump-json - dump the complete internal table as a json-object
+    dump-csv  - dump the complete internal table using csv-output</p>
+
+<h4>
+<a name="vstatustype" class="anchor" href="#vstatustype"><span class="octicon octicon-link"></span></a>vstatusType</h4>
+
+<p><strong>vstatusType </strong> declares, if the data will be delta or absolut values
+ - raw hits will be displayed. this counter will be resettet, if apache is restarted
+ - delta hits. val = val(newest non-active line) - val(newest non-active line - vstatusDelta)</p>
+
+<h4>
+<a name="vstatusdelta" class="anchor" href="#vstatusdelta"><span class="octicon octicon-link"></span></a>vstatusDelta</h4>
+
+<p><strong>vstatusDelta </strong> controls the timeperiod used for . If missing, 1 will be set</p>
+
+<h4>
+<a name="vstatuscomment" class="anchor" href="#vstatuscomment"><span class="octicon octicon-link"></span></a>vstatusComment</h4>
+
+<p><strong>vstatusComment </strong> just a comment for the Filter. Shown in the overview-page</p>
+
+<h3>
+<a name="accessing-the-data" class="anchor" href="#accessing-the-data"><span class="octicon octicon-link"></span></a>accessing the data</h3>
+
+<p>All data can be accessed via get-requests. The example defines a Location called "vstatus".
+getting http:///vstatus will show you a overview-page with several informations including a list of all defined filters.
+Clicking a filter will show you the data, defined by the filter.</p>
+
+<h3>
 <a name="author---christopher-kreitz" class="anchor" href="#author---christopher-kreitz"><span class="octicon octicon-link"></span></a>Author - <a href="https://github.com/romses">Christopher Kreitz</a>
 </h3>
       </section>
