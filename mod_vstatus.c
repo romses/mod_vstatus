@@ -39,6 +39,15 @@ static const int vstatus_tracked_status[] = {
 	500,501,502,503,504,505
 };
 
+static const char* help[] = {
+	"sec10","sec10.1","sec10.2","sec10.3","sec10.4","sec10.5",
+	"sec10.1.1","sec10.1.",
+	"sec10.2.1","sec10.2.2","sec10.2.3","sec10.2.4","sec10.2.5","sec10.2.6","sec10.2.7",
+	"sec10.3.1","sec10.3.2","sec10.3.3","sec10.3.4","sec10.3.5","sec10.3.6","sec10.3.7","sec10.3.8",
+	"sec10.4.1","sec10.4.2","sec10.4.3","sec10.4.4","sec10.4.5","sec10.4.6","sec10.4.7","sec10.4.8","sec10.4.9","sec10.4.10","sec10.4.11","sec10.4.12","sec10.4.13","sec10.4.14","sec10.4.15","sec10.4.16","sec10.4.17","sec10.4.18",
+	"sec10.5.1","sec10.5.2","sec10.5.3","sec10.5.4","sec10.5.5","sec10.5.6"
+};
+
 typedef struct vstatus_s{
 	char *hostname;
 	long resultcode[CODES_TRACKED];	//Count Requests/code
@@ -130,7 +139,6 @@ int handle(request_rec * r){
 	}else{
 		*key++; // remove foremost slash
 	}
-//	ap_log_rerror(APLOG_MARK, APLOG_EMERG, 0, r,"Bucket in Range!: %i (%i) TID: %i",*bucket,gconf->histSize, apr_os_thread_current());
 	if(apr_atomic_read32(&rbuffer[*bucket].timestamp)<time){
 
 		apr_atomic_inc32(bucket);
@@ -338,10 +346,10 @@ int handle_html(request_rec * r,int rel,int delta,int dump){
 			case 3:
 			case 4:
 			case 5:
-				ap_rputs((char *) apr_psprintf(r->pool, "<td>%ixx</td>",vstatus_tracked_status[getCounter(codes[i])]),r);
+				ap_rputs((char *) apr_psprintf(r->pool, "<td><a href=\"http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#%s\">%ixx</a></td>",help[getCounter(codes[i])],vstatus_tracked_status[getCounter(codes[i])]),r);
 				break;
 			default:
-				ap_rputs((char *) apr_psprintf(r->pool, "<td>%i</td>",vstatus_tracked_status[getCounter(codes[i])]),r);
+				ap_rputs((char *) apr_psprintf(r->pool, "<td><a href=\"http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#%s\">%i</a></td>",help[getCounter(codes[i])],vstatus_tracked_status[getCounter(codes[i])]),r);
 		}
 	}
 	ap_rputs("</tr>\n<tr>\n",r);
@@ -748,6 +756,11 @@ static int init(apr_pool_t * p, apr_pool_t * plog, apr_pool_t * ptemp, server_re
 	apr_size_t retsize;
 	apr_status_t rv;
 	void *shmstart;
+	apr_hash_t* hosts=apr_hash_make(p);
+	apr_hash_index_t *hi;
+	char* key;
+	char* val;
+
 
 	vstatus_cfg *cfg = ap_get_module_config(s->module_config, &vstatus_module);
 
@@ -760,6 +773,7 @@ static int init(apr_pool_t * p, apr_pool_t * plog, apr_pool_t * ptemp, server_re
 			if (dirc != NULL){
 				if(strcmp(dirc->directive,"ServerName")==0){
 					num_vhosts++;
+					apr_hash_set(hosts,dirc->args,sizeof(dirc->directive),dirc->args);
 #ifdef DEBUG
 					ap_log_error(APLOG_MARK, APLOG_NOTICE, 0, s,
 					"mod_vstatus : VirtualHost %d ServerName %s",num_vhosts,dirc->args);
@@ -770,6 +784,7 @@ static int init(apr_pool_t * p, apr_pool_t * plog, apr_pool_t * ptemp, server_re
 		}
 	}
 
+	num_vhosts=apr_hash_count(hosts);
 	num_vhosts++;		//1 for ServerName
 	num_vhosts++;		//1 for Aggregated Data
 
@@ -844,17 +859,13 @@ ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,"mod_reqstatus : Segmenting SHM");
 		j=1;
 		rbuffer[i].data = shmstart+2*sizeof(int) + ((cfg->histSize)*sizeof(vstatus_ringbuffer)) + i*(num_vhosts*sizeof(vstatus_data));
 
-		for (dir = ap_conftree; dir; dir = dir->next) {
-			for(dirc=dir->first_child;dirc;dirc=dirc->next){
-				if(dirc != NULL){
-					if(strcmp(dirc->directive,"ServerName")==0){
-						j++;
-						rbuffer[i].data[j].hostname = apr_palloc(cfg->pool,strlen(dirc->args)+1);
-						strcpy(rbuffer[i].data[j].hostname, dirc->args);
-					}
-				}
-			}
+		for (hi = apr_hash_first(p, hosts); hi; hi = apr_hash_next(hi)) {
+			j++;
+			apr_hash_this(hi, &key, NULL, &val);
+			rbuffer[i].data[j].hostname = apr_palloc(cfg->pool,strlen(key)+1);
+			strcpy(rbuffer[i].data[j].hostname, key);
 		}
+
 		rbuffer[i].data[0].hostname = apr_palloc(cfg->pool,strlen("Total")+1);
 		rbuffer[i].data[1].hostname = apr_palloc(cfg->pool,strlen(s->server_hostname)+1);
 		strcpy(rbuffer[i].data[0].hostname,"Total");
