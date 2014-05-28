@@ -68,4 +68,62 @@ add the following config directives to the apache config (e.g. /etc/apache2/http
     vstatusComment google "Data for google chart tools"
 
 
+### Parameters
+
+First, there are two parameter, **vstatusHistSize** and **vstatusGranularity**. These parameters controlls, wow many data values are stored, and how often, they are renewed.
+
+**vstatusHistSize** controls, how many lines the data-table woll hold for each vhost.
+e.g. **vstatusHistSize** 120 will hold 120 lines for each vhost.
+
+**vstatusGranularity** will control the amount of time in seconds, a line will be active.
+
+e.g. **vstatusGranularity** 1 will create a new line every second.
+
+Therefor, vstatusHistSize 120 and vstatusGranularity 1 will hold data for two minutes
+
+
+### Filters
+
+For getting the data stored in the internal table, you will need a filter. Filters requires several parameters.
+
+A Filter will be create on the fly, by naming it as the fist parameter i one of the following commands: **vstatusFilter**, **vstatusFormat**, **vstatusType**, **vstatusDelta**, **vstatusDelta**
+
+#### vstatusFilter
+**vstatusFilter <name> <filter>** declares, which response-codes will be exported.
+0 - summarize all status-codes (all hits)
+1 - summarize all 1xx-codes
+...
+5 - summarize all 5xx-codes
+
+100 - list all 100-codes
+404 - list all "Page not found" codes
+
+#### vstatusFormat
+**vstatusFormat <name> <format>** declares, how the data will be formatted
+valid statements are:
+    html      - creates human readable output
+    csv       - creates csv-content <timestamp>,<vhost>,<codes as declared in vstatusFilter>
+    json      - creates a json-object containing the colelcted data.
+    google    - creates a google-json for using in google chart-tools
+    dump-json - dump the complete internal table as a json-object
+    dump-csv  - dump the complete internal table using csv-output
+    
+#### vstatusType
+**vstatusType <name> <type>** declares, if the data will be delta or absolut values
+<abs> - raw hits will be displayed. this counter will be resettet, if apache is restarted
+<rel> - delta hits. val = val(newest non-active line) - val(newest non-active line - vstatusDelta)
+
+#### vstatusDelta
+**vstatusDelta <name> <delta>** controls the timeperiod used for <vstatusType = rel>. If missing, 1 will be set
+
+#### vstatusComment
+**vstatusComment <name> <comment>** just a comment for the Filter. Shown in the overview-page
+
+### accessing the data
+All data can be accessed via get-requests. The example defines a Location called "vstatus".
+getting http://<ip>/vstatus will show you a overview-page with several informations including a list of all defined filters.
+Clicking a filter will show you the data, defined by the filter.
+
+
+
 ###Author - [Christopher Kreitz](https://github.com/romses)
