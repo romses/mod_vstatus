@@ -19,7 +19,7 @@
 
 module AP_MODULE_DECLARE_DATA vstatus_module;
 
-//#define DEBUG 1
+#define DEBUG 1
 
 #ifndef DEFAULT_TIME_FORMAT
 	#define DEFAULT_TIME_FORMAT "%A, %d-%b-%Y %H:%M:%S %Z"
@@ -95,10 +95,15 @@ static int logRequest(request_rec * r){
 	unsigned int loc=0;
 
 	loc=hostindex(r->server->server_hostname);
-
+#ifdef DEBUG
+	ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r,"mod_reqstatus : *bucket = %u",*bucket);
+#endif
 
 	for (c=0; c < CODES_TRACKED; c++)   {
 		if (vstatus_tracked_status[c] == r->status) {
+#ifdef DEBUG
+			ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r,"mod_reqstatus : c = %u",c);
+#endif
 			apr_atomic_inc32(&rbuffer[*bucket].data[loc].resultcode[c]);
 			apr_atomic_inc32(&rbuffer[*bucket].data[0].resultcode[c]);
 		}
@@ -197,6 +202,25 @@ int handle(request_rec * r){
 	return DECLINED;
 }
 
+int getDeltaPos(int pos, int delta){
+	int i=0;
+	int deltapos=(((pos-(delta/gconf->granularity))+gconf->histSize)%gconf->histSize)-1;
+        for(i=0;i<gconf->histSize;i++){
+                deltapos++;
+                deltapos%=gconf->histSize;
+                if(rbuffer[deltapos].timestamp!=0){
+                        if((rbuffer[(pos+gconf->histSize-1)%gconf->histSize].timestamp-delta - rbuffer[deltapos].timestamp)<= (delta/gconf->granularity)){
+                                i=gconf->histSize;
+                        }
+                }else{
+//			i=gconf->histSize;
+			deltapos=pos;
+			break;
+		}
+        }
+	return deltapos;
+}
+
 int handle_else(request_rec * r){
 	apr_hash_index_t *hi;
 	int i;
@@ -279,19 +303,8 @@ int handle_html(request_rec * r,int rel,int delta,int dump){
 	char *f = r->path_info;
 	*f++; // remove foremost slash
 
-//	int delta=apr_hash_get(gconf->delta,f,strlen(f));
-//
-//	if(delta==0){
-//		delta=1;
-//	}
-
 	int pos=((*old_bucket-1)+gconf->histSize)%gconf->histSize;
-	int deltapos=((*old_bucket-(delta+1))+gconf->histSize)%gconf->histSize;
-
-	while(rbuffer[(pos+gconf->histSize-1)%gconf->histSize].timestamp-delta>=rbuffer[deltapos].timestamp){
-		deltapos++;
-		deltapos%=gconf->histSize;
-	}
+	int deltapos=getDeltaPos(pos,delta);
 
 	char* type = (char*)apr_hash_get (gconf->type, f, strlen(f));
 
@@ -321,7 +334,13 @@ int handle_html(request_rec * r,int rel,int delta,int dump){
 	ap_rputs("<hr>\n",r);
 
 #ifdef DEBUG
-	ap_rputs((char *) apr_psprintf(r->pool, "Bucket  : %i<br>",*bucket),r);
+	ap_rputs((char *) apr_psprintf(r->pool, "pos     : %i %"APR_INT64_T_FMT"<br>",pos,rbuffer[pos].timestamp),r);
+	ap_rputs((char *) apr_psprintf(r->pool, "deltapos: %i %"APR_INT64_T_FMT"<br>",deltapos,rbuffer[deltapos].timestamp),r);
+	ap_rputs((char *) apr_psprintf(r->pool, "delta   : %"APR_INT64_T_FMT" - %"APR_INT64_T_FMT" = %"APR_INT64_T_FMT"<br>",
+			rbuffer[pos].timestamp,
+			rbuffer[deltapos].timestamp,
+			(rbuffer[pos].timestamp-rbuffer[deltapos].timestamp)*gconf->granularity
+	),r);
 	ap_rputs((char *) apr_psprintf(r->pool, "Time    : %i<br>",getTime(r->request_time)),r);
 	ap_rputs((char *) apr_psprintf(r->pool, "Format  : %s<br>",fmt),r);
 	ap_rputs((char *) apr_psprintf(r->pool, "Gran: %i Hist %i<br>",gconf->granularity,gconf->histSize),r);
@@ -392,7 +411,6 @@ int handle_html(request_rec * r,int rel,int delta,int dump){
 	ap_rputs("</body>\n",r);
 	return OK;
 }
-
 int handle_csv(request_rec * r,int rel,int delta,int dump){
 	char* key;
 	apr_ssize_t klen;
@@ -457,7 +475,8 @@ int handle_csv(request_rec * r,int rel,int delta,int dump){
 
 	for(iter=0;iter<iter_max;iter++){
 		pos=(p-iter+gconf->histSize)%gconf->histSize;
-		deltapos=((pos-delta)+gconf->histSize)%gconf->histSize;
+//		deltapos=((pos-delta)+gconf->histSize)%gconf->histSize;
+		deltapos=getDeltaPos(pos,delta);
 		for(i=0;i<num_vhosts;i++){
 			t=(iter==0)?apr_time_sec(r->request_time) : rbuffer[pos].timestamp*gconf->granularity;
 
@@ -520,7 +539,8 @@ int handle_json(request_rec * r,int rel,int delta,int dump){
 
 	for(iter=0;iter<iter_max;iter++){
 		pos=(p-iter+gconf->histSize)%gconf->histSize;
-		deltapos=((pos-delta)+gconf->histSize)%gconf->histSize;
+//		deltapos=((pos-delta)+gconf->histSize)%gconf->histSize;
+		deltapos=getDeltaPos(pos,delta);
 		t=rbuffer[pos].timestamp*gconf->granularity;
 
 		if(iter!=0){
@@ -572,7 +592,8 @@ int handle_google(request_rec * r){
 	}
 
 	int pos=((*old_bucket-1)+gconf->histSize)%gconf->histSize;
-	int deltapos=((*old_bucket-(delta+1))+gconf->histSize)%gconf->histSize;
+//	int deltapos=((*old_bucket-(delta+1))+gconf->histSize)%gconf->histSize;
+	int deltapos=getDeltaPos(pos,delta);
 
 	while(rbuffer[(pos+gconf->histSize-1)%gconf->histSize].timestamp-delta>rbuffer[deltapos].timestamp){
 		deltapos++;
