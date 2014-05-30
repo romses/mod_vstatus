@@ -393,7 +393,7 @@ int handle_html(request_rec * r,int rel,int delta,int dump){
 		ap_rputs("<tr>\n",r);
 		ap_rputs((char *) apr_psprintf(r->pool, "<td><a href=http://%s>%s</a></td>",rbuffer[*bucket].data[i].hostname,rbuffer[0].data[i].hostname),r);
 #ifdef DEBUG
-		ap_rputs((char *) apr_psprintf(r->pool, "<td>%i</td>",rbuffer[pos].timestamp-rbuffer[deltapos].timestamp),r);
+		ap_rputs((char *) apr_psprintf(r->pool, "<td>%i</td>",(rbuffer[pos].timestamp-rbuffer[deltapos].timestamp)*gconf->granularity),r);
 #endif
 		for(j=0;j<num_codes;j++){
 			if(strcmp(type,"abs")){
@@ -861,12 +861,8 @@ ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,"mod_reqstatus : sizeof vstatus_data   
 ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,"mod_reqstatus : shm_size                 : %u",shm_size);
 ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,"mod_reqstatus : num_vhosts               : %u",num_vhosts);
 ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,"mod_reqstatus : gconf->histSize          : %u",cfg->histSize);
-
 ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,"mod_reqstatus : SHM Adr %u",shmstart);
-#endif
 
-
-#ifdef DEBUG
 ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,"mod_reqstatus : Segmenting SHM");
 #endif
 
@@ -888,9 +884,10 @@ ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,"mod_reqstatus : Segmenting SHM");
 		}
 
 		rbuffer[i].data[0].hostname = apr_palloc(cfg->pool,strlen("Total")+1);
-		rbuffer[i].data[1].hostname = apr_palloc(cfg->pool,strlen(s->server_hostname)+1);
+		rbuffer[i].data[1].hostname = apr_palloc(cfg->pool,strlen("__HOST__")+1);
 		strcpy(rbuffer[i].data[0].hostname,"Total");
-		strcpy(rbuffer[i].data[1].hostname,s->server_hostname);
+//		strcpy(rbuffer[i].data[1].hostname,s->server_hostname);
+		strcpy(rbuffer[i].data[1].hostname,"__HOST__");
 
 	}
 
