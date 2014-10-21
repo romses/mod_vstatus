@@ -3,32 +3,35 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
-
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
     <title>Mod_vstatus by romses</title>
   </head>
 
   <body>
+    <div id="container">
+      <div class="inner">
 
-    <header>
-      <div class="container">
-        <h1>Mod_vstatus</h1>
-        <h2>Apache module for displaying HTTP error Codes for virtual hosts</h2>
+        <header>
+          <h1>Mod_vstatus</h1>
+          <h2>Apache module for displaying HTTP error Codes for virtual hosts</h2>
+        </header>
 
-        <section id="downloads">
-          <a href="https://github.com/romses/mod_vstatus/zipball/master" class="btn">Download as .zip</a>
-          <a href="https://github.com/romses/mod_vstatus/tarball/master" class="btn">Download as .tar.gz</a>
-          <a href="https://github.com/romses/mod_vstatus" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/romses/mod_vstatus/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/romses/mod_vstatus/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/romses/mod_vstatus" id="view-on-github" class="button"><span>View on GitHub</span></a>
         </section>
-      </div>
-    </header>
 
-    <div class="container">
-      <section id="main_content">
-        <h1>
+        <hr>
+
+        <section id="main_content">
+          <h1>
 <a name="mod_vstatus" class="anchor" href="#mod_vstatus"><span class="octicon octicon-link"></span></a>mod_vstatus</h1>
 
 <h3>
@@ -43,7 +46,9 @@
 <li>highly configurable</li>
 <li>different output styles (csv,google charts, html)</li>
 <li>filter by status code</li>
-</ul><h2>
+</ul>
+
+<h2>
 <a name="example-output" class="anchor" href="#example-output"><span class="octicon octicon-link"></span></a>example output</h2>
 
 <h3>
@@ -129,7 +134,7 @@ e.g. <strong>vstatusHistSize</strong> 120 will hold 120 lines for each vhost.</p
 <h4>
 <a name="vstatusfilter" class="anchor" href="#vstatusfilter"><span class="octicon octicon-link"></span></a>vstatusFilter</h4>
 
-<p><strong>vstatusFilter </strong> declares, which response-codes will be exported.
+<p><strong>vstatusFilter  </strong> declares, which response-codes will be exported.
 0 - summarize all status-codes (all hits)
 1 - summarize all 1xx-codes
 ...
@@ -141,7 +146,7 @@ e.g. <strong>vstatusHistSize</strong> 120 will hold 120 lines for each vhost.</p
 <h4>
 <a name="vstatusformat" class="anchor" href="#vstatusformat"><span class="octicon octicon-link"></span></a>vstatusFormat</h4>
 
-<p><strong>vstatusFormat </strong> declares, how the data will be formatted
+<p><strong>vstatusFormat  </strong> declares, how the data will be formatted
 valid statements are:
     html      - creates human readable output
     csv       - creates csv-content ,,
@@ -153,19 +158,19 @@ valid statements are:
 <h4>
 <a name="vstatustype" class="anchor" href="#vstatustype"><span class="octicon octicon-link"></span></a>vstatusType</h4>
 
-<p><strong>vstatusType </strong> declares, if the data will be delta or absolut values
+<p><strong>vstatusType  </strong> declares, if the data will be delta or absolut values
  - raw hits will be displayed. this counter will be resettet, if apache is restarted
  - delta hits. val = val(newest non-active line) - val(newest non-active line - vstatusDelta)</p>
 
 <h4>
 <a name="vstatusdelta" class="anchor" href="#vstatusdelta"><span class="octicon octicon-link"></span></a>vstatusDelta</h4>
 
-<p><strong>vstatusDelta </strong> controls the timeperiod used for . If missing, 1 will be set</p>
+<p><strong>vstatusDelta  </strong> controls the timeperiod used for . If missing, 1 will be set</p>
 
 <h4>
 <a name="vstatuscomment" class="anchor" href="#vstatuscomment"><span class="octicon octicon-link"></span></a>vstatusComment</h4>
 
-<p><strong>vstatusComment </strong> just a comment for the Filter. Shown in the overview-page</p>
+<p><strong>vstatusComment  </strong> just a comment for the Filter. Shown in the overview-page</p>
 
 <h3>
 <a name="accessing-the-data" class="anchor" href="#accessing-the-data"><span class="octicon octicon-link"></span></a>accessing the data</h3>
@@ -177,9 +182,15 @@ Clicking a filter will show you the data, defined by the filter.</p>
 <h3>
 <a name="author---christopher-kreitz" class="anchor" href="#author---christopher-kreitz"><span class="octicon octicon-link"></span></a>Author - <a href="https://github.com/romses">Christopher Kreitz</a>
 </h3>
-      </section>
-    </div>
+        </section>
 
-    
+        <footer>
+          Mod_vstatus is maintained by <a href="https://github.com/romses">romses</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
   </body>
 </html>
