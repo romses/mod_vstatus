@@ -142,8 +142,11 @@ int handle(request_rec * r){
 	if(key==NULL){
 		key="";
 	}else{
-		*key++; // remove foremost slash
+		if(key[0]=='/'){
+			*key++; // remove foremost slash
+		}
 	}
+
 	if(apr_atomic_read32(&rbuffer[*bucket].timestamp)<time){
 
 		apr_atomic_inc32(bucket);
@@ -157,6 +160,10 @@ int handle(request_rec * r){
 
 		memcpy(&rbuffer[*bucket].data[0],&rbuffer[*old_bucket].data[0],num_vhosts*sizeof(vstatus_data));
 		apr_atomic_set32(old_bucket,*bucket);
+	}
+
+	if (strncmp(r->handler, "vstatus",7) != 0) {
+		return DECLINED;
 	}
 
 	format= (char*)apr_hash_get (gconf->format, key, strlen(key));
@@ -179,8 +186,14 @@ int handle(request_rec * r){
 	}
 
 
-//	ap_log_rerror(APLOG_MARK, APLOG_NOTICE, 0, r,"Format: **%s**",format);
-	if (strcmp(r->handler, "vstatus") == 0) {
+
+//	if (strcmp(r->handler, "vstatus") == 0) {
+
+		if(strcmp(r->path_info,"/status.html")==0){
+			return print_status_page(r);
+		}
+		ap_log_rerror(APLOG_MARK, APLOG_NOTICE, 0, r,"mod_vstatus: FILENAME: **%s**",r->path_info);
+
 		if(strcmp(format,"json")==0){
 			return handle_json(r,rel,delta,0);
 		}else if(strcmp(format,"csv")==0){
@@ -198,7 +211,7 @@ int handle(request_rec * r){
 		}else{
 			return handle_else(r);
 		}
-	}
+//	}
 	return DECLINED;
 }
 
@@ -219,6 +232,42 @@ int getDeltaPos(int pos, int delta){
 		}
         }
 	return deltapos;
+}
+
+int print_status_page(request_rec * r){
+	int i=0;
+	ap_set_content_type(r, "text/html");
+	ap_rputs(DOCTYPE_HTML_3_2"<html>\n<head>\n<title>mod_vstatus: internal config</title>\n",r);
+	ap_rputs(FAVICON,r);
+	ap_rputs("<body>\n",r);
+	ap_rputs("<h1>mod_vstatus</h1><h2>mod_vstatus: internal config</h2>", r);
+	ap_rputs("<hline>\n",r);
+	ap_rputs("<h2>Hosttable:</h2>", r);
+	ap_rputs("<table border=1>", r);
+	ap_rputs("<tr>", r);
+	ap_rputs("<th>", r);
+	ap_rputs("1", r);
+	ap_rputs("</th>", r);
+	ap_rputs("<th>", r);
+	ap_rputs("2", r);
+	ap_rputs("</th>", r);
+	ap_rputs("</tr>", r);
+	for (i=0;i<num_vhosts;i++){
+		ap_rputs("<tr>", r);
+		ap_rputs("<td>", r);
+		ap_rputs("3", r);
+		ap_rputs("</td>", r);
+		ap_rputs("<td>", r);
+		ap_rputs((char *) apr_psprintf(r->pool, "%s",rbuffer[0].data[i].hostname), r);
+//rbuffer[0].data[i].hostname
+		ap_rputs("</td>", r);
+		ap_rputs("</tr>", r);
+	}
+	ap_rputs("</table>", r);
+
+	ap_rputs("</body>\n",r);
+	ap_rputs("</html>\n",r);
+	return OK;
 }
 
 int handle_else(request_rec * r){
