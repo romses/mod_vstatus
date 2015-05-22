@@ -19,7 +19,7 @@
 
 module AP_MODULE_DECLARE_DATA vstatus_module;
 
-#define DEBUG 1
+//#define DEBUG 1
 
 #ifndef DEFAULT_TIME_FORMAT
 	#define DEFAULT_TIME_FORMAT "%A, %d-%b-%Y %H:%M:%S %Z"
@@ -50,7 +50,7 @@ static const char* help[] = {
 
 typedef struct vstatus_s{
 	char *hostname;
-	long resultcode[CODES_TRACKED];	//Count Requests/code
+	apr_uint32_t resultcode[CODES_TRACKED];	//Count Requests/code
 }vstatus_data;
 
 typedef struct {
@@ -75,6 +75,17 @@ apr_shm_t *shm;
 vstatus_ringbuffer *rbuffer;
 vstatus_cfg *gconf;
 static int num_vhosts = 0;
+
+int handle_html(request_rec * r,int rel,int delta,int dump);
+int handle_json(request_rec * r,int rel,int delta,int dump);
+int handle_csv(request_rec * r,int rel,int delta,int dump);
+int handle_google(request_rec * r);
+int handle_else(request_rec * r);
+apr_status_t apr_atomic_init(apr_pool_t *p);
+apr_uint32_t apr_atomic_inc32(volatile apr_uint32_t *mem);
+apr_uint32_t apr_atomic_read32(volatile apr_uint32_t *mem);
+void apr_atomic_set32(volatile apr_uint32_t *mem,apr_uint32_t val);
+void apr_hash_this(apr_hash_index_t *hi, const void **key, apr_ssize_t *klen, void **val);
 
 unsigned long hostindex(char *str){
 	int i;
@@ -136,7 +147,8 @@ int handle(request_rec * r){
 	char *format;
 	char *key = r->path_info;
 	int delta,rel;
-	char *val;
+//	char *val;
+	apr_uint32_t *val;
 	apr_time_t time = getTime(r->request_time);
 
 	if(key==NULL){
@@ -610,8 +622,8 @@ int handle_json(request_rec * r,int rel,int delta,int dump){
 				if(rel==0){
 					ap_rputs((char *) apr_psprintf(r->pool, "\"%i\":\"%li\"",codes[j],rbuffer[pos].data[i].resultcode[getCounter(codes[j])]),r);
 				}else{
-					ap_rputs((char *) apr_psprintf(r->pool, "\"%i\":\"%li\"",codes[j],rbuffer[pos].data[i].resultcode[getCounter(codes[j])]-
-													rbuffer[deltapos].data[i].resultcode[getCounter(codes[j])]),r);
+					ap_rputs((char *) apr_psprintf(r->pool, "\"%i\":\"%li\"",codes[j],(long int)rbuffer[pos].data[i].resultcode[getCounter(codes[j])]-
+													(long int)rbuffer[deltapos].data[i].resultcode[getCounter(codes[j])]),r);
 				}
 			}
 			ap_rputs("}\n",r);
@@ -698,11 +710,11 @@ int handle_google(request_rec * r){
 	for(j=0;j<num_codes;j++){
 		if(strcmp(type,"abs")){
 //			ap_rputs((char *) apr_psprintf(r->pool, ",{\"v\":%i,\"f\":null}",0),r);
-			ap_rputs((char *) apr_psprintf(r->pool, ",{\"v\":%li,\"f\":null}",(rbuffer[pos].data[0].resultcode[getCounter(codes[j])]
-									      -rbuffer[deltapos].data[0].resultcode[getCounter(codes[j])])
+			ap_rputs((char *) apr_psprintf(r->pool, ",{\"v\":%li,\"f\":null}",((long int)rbuffer[pos].data[0].resultcode[getCounter(codes[j])]
+									      -(long int)rbuffer[deltapos].data[0].resultcode[getCounter(codes[j])])
 			),r);
 		}else{
-			ap_rputs((char *) apr_psprintf(r->pool, ",{\"v\":%li,\"f\":null}",rbuffer[*old_bucket].data[0].resultcode[getCounter(codes[j])]),r);
+			ap_rputs((char *) apr_psprintf(r->pool, ",{\"v\":%li,\"f\":null}",(long int)rbuffer[*old_bucket].data[0].resultcode[getCounter(codes[j])]),r);
 //			ap_rputs((char *) apr_psprintf(r->pool, ",{\"v\":%i,\"f\":null}",0),r);
 		}
 	}
@@ -713,11 +725,11 @@ int handle_google(request_rec * r){
 
 		for(j=0;j<num_codes;j++){
 			if(strcmp(type,"abs")){
-				ap_rputs((char *) apr_psprintf(r->pool, ",{\"v\":%li,\"f\":null}",(rbuffer[pos].data[i].resultcode[getCounter(codes[j])]
-											-rbuffer[deltapos].data[i].resultcode[getCounter(codes[j])])
+				ap_rputs((char *) apr_psprintf(r->pool, ",{\"v\":%li,\"f\":null}",((long int)rbuffer[pos].data[i].resultcode[getCounter(codes[j])]
+											-(long int)rbuffer[deltapos].data[i].resultcode[getCounter(codes[j])])
 	                        ),r);
 			}else{
-				ap_rputs((char *) apr_psprintf(r->pool, ",{\"v\":%li,\"f\":null}",rbuffer[*old_bucket].data[i].resultcode[getCounter(codes[j])]),r);
+				ap_rputs((char *) apr_psprintf(r->pool, ",{\"v\":%li,\"f\":null}",(long int)rbuffer[*old_bucket].data[i].resultcode[getCounter(codes[j])]),r);
 			}
 		}
 		ap_rputs("]}\n",r);
@@ -940,7 +952,7 @@ ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,"mod_reqstatus : Segmenting SHM");
 
 	}
 
-	ap_log_error(APLOG_MARK, APLOG_NOTICE, 0, s,"mod_vstatus : Version %s - Initialized [%d VHosts] %i Bytes allocated", VERSION,num_vhosts,shm_size);
+	ap_log_error(APLOG_MARK, APLOG_NOTICE, 0, s,"mod_vstatus : Version %s - Initialized [%d VHosts] %i Bytes allocated", VERSION,num_vhosts,(int)shm_size);
 	return OK;
 }
 
